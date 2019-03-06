@@ -1,6 +1,7 @@
 package com.robocode.luc;
 
 import java.awt.Color;
+import static java.lang.Math.PI;
 
 import robocode.AdvancedRobot;
 import robocode.HitByBulletEvent;
@@ -26,13 +27,13 @@ public class LucBot extends AdvancedRobot{
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForRobotTurn(true);
 				
-		while (true) {
-			turnRadarLeft(10);
-//			turnRadarLeft(Double.MAX_VALUE);
-//			System.out.println(getHeadingRadians());
+//		while (true) {
+////			turnRadarLeft(10);
+////			turnRadarLeft(Double.MAX_VALUE);
+////			System.out.println(getHeadingRadians());
 //			scan();
-			
-		}
+//			
+//		}
 	}
 	
 	@Override
@@ -50,9 +51,10 @@ public class LucBot extends AdvancedRobot{
 		setTurnGunRightRadians(Utils.normalRelativeAngle(gunTurn+ainBotVal));	
 //		setTurnRight(Utils.normalRelativeAngle(roboTurn));
 		
-//		setAhead(dist);
+		setAhead(dist);
 		
-		System.out.println(Math.toDegrees( e.getHeadingRadians() ));
+		
+//		System.out.println(Math.toDegrees( e.getHeadingRadians() ));
 		fire(bulletPower);
 		
 //		System.out.println(180+e.getBearing());

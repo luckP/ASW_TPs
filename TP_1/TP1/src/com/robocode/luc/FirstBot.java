@@ -7,19 +7,19 @@ public class FirstBot extends AdvancedRobot{
     public void run() {
     	
         while (true) {
-        	System.out.println("getGunHeadingRadians: " + getGunHeadingRadians());
-            ahead(100);
-            turnLeft(90);
-            
-            turnRadarLeft(30);
-            turnGunLeft(30);
-            turnRadarRight(60);
-            turnGunRight(60);
-            turnRadarLeft(30);
-            turnGunLeft(60);
-            
-            execute();
-            System.out.println(Utils.normalRelativeAngle(1));
+//        	System.out.println("getGunHeadingRadians: " + getGunHeadingRadians());
+//            ahead(100);
+//            turnLeft(90);
+//            
+//            turnRadarLeft(30);
+//            turnGunLeft(30);
+//            turnRadarRight(60);
+//            turnGunRight(60);
+//            turnRadarLeft(30);
+//            turnGunLeft(60);
+//            
+//            execute();
+//            System.out.println(Utils.normalRelativeAngle(1));
 //            turnGunLeft(90);
             
 //            ahead(100);
@@ -39,6 +39,8 @@ public class FirstBot extends AdvancedRobot{
         	
 //          turnGunRight(10);
 //          fire(1);
+        	
+        	setTurnRadarLeft(Double.MAX_VALUE);
         }
     }
  
