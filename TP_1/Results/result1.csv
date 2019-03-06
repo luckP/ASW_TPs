@@ -1,0 +1,11 @@
+Mar 2, 2019 1:22:11 PM
+Results for 10 rounds
+Rank,Robot Name,    Total Score    ,Survival,Surv Bonus,Bullet Dmg,Bullet Bonus,Ram Dmg * 2,Ram Bonus, 1sts , 2nds , 3rds 
+1st,com.robocode.luc.LucBot*,5904 (31%),2800,420,2244,283,143,14,7,2,1
+2nd,sampleex.Alien,2688 (14%),2000,120,536,17,14,0,2,4,0
+3rd,sample.RamFire,2357 (13%),650,0,1171,58,384,94,0,0,1
+4th,sample.Crazy,2307 (12%),1900,0,347,8,52,0,0,3,5
+5th,sample.Corners,1988 (11%),1300,0,672,13,2,0,0,0,2
+6th,sample.MyFirstJuniorRobot,1870 (10%),1100,60,653,17,40,0,1,0,1
+7th,sample.Fire,1677 (9%),750,0,877,45,5,0,0,1,0
+$
