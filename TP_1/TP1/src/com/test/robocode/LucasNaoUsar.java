@@ -1,4 +1,4 @@
-package com.robocode.luc;
+package com.test.robocode;
 
 import robocode.util.Utils;
 import java.util.Random;

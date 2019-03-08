@@ -26,14 +26,18 @@ public class LucBot extends AdvancedRobot{
 		setAdjustRadarForGunTurn(true);
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForRobotTurn(true);
+//		setAhead(dist);
+		
 				
-//		while (true) {
+		while (true) {
+			turnRadarRight(Double.MAX_VALUE);
+			
 ////			turnRadarLeft(10);
 ////			turnRadarLeft(Double.MAX_VALUE);
 ////			System.out.println(getHeadingRadians());
-//			scan();
+			scan();
 //			
-//		}
+		}
 	}
 	
 	@Override
@@ -44,25 +48,31 @@ public class LucBot extends AdvancedRobot{
 //		double roboTurn = e.getBearingRadians();
 
 		double bulletPower = calcBulletPowerPower( e.getDistance(), getEnergy() );
-		double ainBotVal = 0;//aimBot(e.getHeadingRadians(), e.getDistance(), 20-(3*bulletPower), e.getVelocity());
+//		double ainBotVal = aimBot(e.getHeadingRadians(), e.getDistance(), 20-(3*bulletPower), e.getVelocity(), gunTurn);
 		
-		
+		aimBot(e.getHeadingRadians(), e.getDistance(), 20-(3*bulletPower), e.getVelocity(), gunTurn);
 		setTurnRadarRightRadians(Utils.normalRelativeAngle(radarTurn));
-		setTurnGunRightRadians(Utils.normalRelativeAngle(gunTurn+ainBotVal));	
+		setTurnGunRightRadians(Utils.normalRelativeAngle(gunTurn));	
 //		setTurnRight(Utils.normalRelativeAngle(roboTurn));
 		
-		setAhead(dist);
+//		setAhead(dist);
 		
 		
-//		System.out.println(Math.toDegrees( e.getHeadingRadians() ));
-		fire(bulletPower);
+		System.out.println(Math.toDegrees( e.getHeadingRadians() ));
+		System.out.println(Math.toDegrees( e.getVelocity() ));
+//		fire(bulletPower);
 		
 //		System.out.println(180+e.getBearing());
 //		System.out.println(e.getHeading());
 		
 	}
 	
-	public double aimBot(double alfa, double dist, double vp, double vt) {
+	public void aimBot(double alfa, double dist, double vp, double vt, double gunTurn) {
+		
+		double s  = -vt/Math.abs(vt);
+//		double s2 = -alfa/Math.abs(alfa);
+		
+		vt = Math.sqrt(vt*vt);
 		
 		double a = vp*vp - vt*vt,
 			   b = 2*dist*vt*Math.cos(alfa),
@@ -73,7 +83,10 @@ public class LucBot extends AdvancedRobot{
 		double dp = time*vp,
 			   dt = time*vt;
 		
-		return Math.acos( (dp*dp + dist*dist - dt*dt)/(2*dp*dist));
+		double angle = s*Math.acos( (dp*dp + dist*dist - dt*dt)/(2*dp*dist) );
+		System.out.println(s);
+		setTurnGunRightRadians(Utils.normalRelativeAngle(gunTurn + angle));	
+		fire(1);
 	}
 	
 	
@@ -123,10 +136,10 @@ public class LucBot extends AdvancedRobot{
 		// TODO Auto-generated method stub
 //		super.onHitWall(event);
 //		setBack(30);
-		setAhead(30);
+		ahead(dist);
 		turnRight(angle);
-		setTurnRadarLeft(angle);
-		setTurnGunLeft(angle);
+//		setTurnRadarLeft(angle);
+//		setTurnGunLeft(angle);
 	}
 	
 	
@@ -137,12 +150,12 @@ public class LucBot extends AdvancedRobot{
 	
 	private double calcBulletPowerPower(double distance, double energy) {
 		
-//		return 1;	
-		if(distance>500 || energy<15) 
-			return 1;
-		else if(distance<500 && distance>200)
-			return 2;
-		return 3;
+		return 1;	
+//		if(distance>500 || energy<15) 
+//			return 1;
+//		else if(distance<500 && distance>200)
+//			return 2;
+//		return 3;
 	}
 	
 	
