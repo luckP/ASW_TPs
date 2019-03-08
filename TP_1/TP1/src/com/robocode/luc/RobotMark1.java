@@ -36,11 +36,8 @@ public class RobotMark1 extends AdvancedRobot{
 		setAdjustRadarForRobotTurn(true);
 		setAdjustGunForRobotTurn(true);
 		
-		
-		
 		while(true) {
 			turnRadarRightRadians(Double.POSITIVE_INFINITY);
-			
 		}
 	}
 	
@@ -63,14 +60,14 @@ public class RobotMark1 extends AdvancedRobot{
 
 	@Override
 	public void onHitByBullet(HitByBulletEvent e) {
-		double radians = (double)((Math.random() * Math.PI) - Math.PI/2);
+		double radians = ((Math.random() * Math.PI) - Math.PI/2);
 		
 		setTurnRightRadians(radians);
 	}
 	
 	@Override
 	public void onHitWall(HitWallEvent e){
-		double radians = (double)(Math.PI + Math.random()*(Math.PI/4));
+		double radians = (Math.PI + Math.random()*(Math.PI/4));
 
 		setTurnRightRadians(radians);
 	}
@@ -110,9 +107,7 @@ public class RobotMark1 extends AdvancedRobot{
 		
 //		fire(300/dist);
 		
-		if(dist>500)
-			fire(0);
-		else if(dist>400 || countMiss>10) 
+		if(dist>400 || countMiss>10) 
 			fire(1);
 		else if(dist>200)
 			fire(2);

@@ -35,7 +35,7 @@ public class LucBot extends AdvancedRobot{
 ////			turnRadarLeft(10);
 ////			turnRadarLeft(Double.MAX_VALUE);
 ////			System.out.println(getHeadingRadians());
-			scan();
+//			scan();
 //			
 		}
 	}
@@ -52,7 +52,7 @@ public class LucBot extends AdvancedRobot{
 		
 		aimBot(e.getHeadingRadians(), e.getDistance(), 20-(3*bulletPower), e.getVelocity(), gunTurn);
 		setTurnRadarRightRadians(Utils.normalRelativeAngle(radarTurn));
-		setTurnGunRightRadians(Utils.normalRelativeAngle(gunTurn));	
+//		setTurnGunRightRadians(Utils.normalRelativeAngle(gunTurn));	
 //		setTurnRight(Utils.normalRelativeAngle(roboTurn));
 		
 //		setAhead(dist);
