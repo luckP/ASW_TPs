@@ -1,0 +1,151 @@
+package rsa.service;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class Users extends java.lang.Object implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+	private User[] users;
+	private static Users usersOBJ = null;
+	private static final String filePath = "./users";
+
+	private static File playersFile = new File(filePath);
+
+	// Authenticate user given id and password
+	boolean authenticate(String nick, String password) {
+		for (User user : this.users) {
+			if ((user.getNick().equals(nick)) && user.authenticate(password)) {
+				return true;
+			}
+		}
+		return true;
+	}
+
+	private Users() {
+
+//		LOAD DATA
+//		loadUserData();
+//		this.loadUserData();
+		users = new User[0];
+	}
+
+	// Returns the single instance of this class as proposed in the singleton design
+	// pattern.
+	static Users getInstance() {
+
+		if (usersOBJ == null)
+			usersOBJ = new Users();
+		return usersOBJ;
+	}
+
+	// Name of file containing managers's data
+	static File getPlayersFile() {
+		return Users.playersFile;
+	}
+
+	// Change pathname of file containing mnanager's data
+	static void setPlayersFile(File managerFile) {
+		Users.playersFile = managerFile;
+	}
+
+	// Get the user with given nick
+	public User getUser(String nick) {
+		for (int i = 0; i < this.users.length; i++) {
+			if (this.users[i].getNick().equals(nick)) {
+				return this.users[i];
+			}
+		}
+		return null;
+	}
+
+	// Register a player with given nick and password.
+	boolean register(String nick, String name, String password) {
+		if(this.getUser(nick)!=null)
+			return false;
+		try {
+			User user = new User(nick, name, password);
+			ArrayList<User> list = new ArrayList<User>((Arrays.asList(this.users)));
+			list.add(user);
+			this.users = new User[list.size()];
+			for(int i=0; i<list.size(); i++) {
+				this.users[i] = list.get(i);
+			}
+//			this.users = (User[]) list.toArray();
+			updateUserData();
+			return true;
+		} catch (Exception e) {
+			System.out.println(e);
+			return false;
+		}
+	}
+
+	// Resets singleton for unit testing purposes.
+	void reset() {
+		usersOBJ = new Users();
+	}
+
+	// Change password if old password matches current one.
+	boolean updatePassword(String nick, String oldPassword, String newPassword) {
+		User user;
+		if ((user = this.getUserByUserNickAndPassword(nick, oldPassword)) != null) {
+			user.setPassword(newPassword);
+			updateUserData();
+			return true;
+		}
+		return false;
+	}
+
+//	Update data file
+	private void updateUserData() {
+
+	}
+
+	private void loadUserData() {
+		BufferedReader reader = null;
+
+		try {
+			reader = new BufferedReader(new FileReader(playersFile));
+			String text = null;
+
+			while ((text = reader.readLine()) != null) {
+//				load data into a list
+			}
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+			}
+		}
+
+	}
+
+	public User getUserByUserNickAndPassword(String nick, String password) {
+		for (int i = 0; i < this.users.length; i++) {
+			if (this.users[i].getNick().equals(nick) && this.users[i].getPassword().equals(password)) {
+				return this.users[i];
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public String toString() {
+		return "Users [users=" + Arrays.toString(users) + "]";
+	}
+	
+	
+
+}

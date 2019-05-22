@@ -1,0 +1,166 @@
+package rsa.service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import rsa.shared.Car;
+import rsa.shared.Location;
+import rsa.shared.RideMatchInfo;
+import rsa.shared.RideRole;
+import rsa.shared.UserStars;
+
+public class Matcher implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+	private Map<Long, RideMatch> matcheMap;
+	private Map<Long, Ride> rideMap;
+	private Map<Long, RideMatchInfo> rideMatchInfoMap;
+
+	private static Location topLeft;
+	private static Location bottomRight;
+	private static double radius;
+
+	public Matcher() {
+		matcheMap = new HashMap<Long, RideMatch>();
+		rideMap = new HashMap<Long, Ride>();
+		this.rideMatchInfoMap = new HashMap<Long, RideMatchInfo>();
+
+	}
+
+	// Accept the proposed match (identified by matchId) for given ride (identified
+	// by rideId)
+	void acceptMatch(long rideId, long matchId) {
+		Matcher.RideMatch rideMatch = this.matcheMap.get(matchId);
+		if( rideMatch != null) {
+			rideMatch.accepetRide(rideId);
+		}
+	}
+
+	// Add a ride to the matcher
+	long addRide(User user, Location from, Location to, String plate, float cost) {
+
+		Ride ride = new Ride(user, from, to, plate, cost);
+		rideMap.put(ride.getId(), ride);
+		return ride.getId();
+	}
+
+	// Mark ride as concluded and classify other using stars
+	void concludeRide(long rideId, UserStars stars) {
+		rideMap.get(rideId).getUser().addStars(stars, rideMap.get(rideId).getRideRole().other());
+	}
+
+	// Location of bottom right corner of matching region
+	static Location getBottomRight() {
+		return bottomRight;
+	}
+
+	// Maximum distance between two users eligible for a match
+	static double getRadius() {
+		return radius;
+	}
+
+	// Location of top left corner of matching region
+	static Location getTopLeft() {
+		return topLeft;
+	}
+
+	// Change location of bottom right corner of matching region
+	static void setBottomRight(Location bottomRight) {
+		Matcher.bottomRight = bottomRight;
+	}
+
+	// Set distance to consider a match
+	static void setRadius(double radius) {
+		Matcher.radius = radius;
+	}
+
+	// Change location of top left corner of matching region
+	static void setTopLeft(Location topLeft) {
+		Matcher.topLeft = topLeft;
+	}
+
+	// Update current location of ride with given id.
+	SortedSet<RideMatchInfo> updateRide(long rideId, Location current) {
+		this.rideMap.get(rideId).setCurrent(current);
+
+		return new TreeSet<RideMatchInfo>(this.rideMatchInfoMap.values());
+	}
+
+	public static long getId() {
+		return serialVersionUID;
+	}
+
+	public class RideMatch {
+		long id;
+		Map<RideRole, Ride> rides = new HashMap<RideRole, Ride>();
+
+		private long rideId = -1;
+
+		public RideMatch(Ride left, Ride right) {
+
+			this.rides.put(left.getRideRole(), left);
+			this.rides.put(right.getRideRole(), right);
+			id = generateId();
+		}
+
+		private int generateId() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + (int) (id ^ (id >>> 32));
+			result = prime * result + ((rides == null) ? 0 : rides.hashCode());
+			return result;
+		}
+
+		// Generated unique identifier of this ride match.
+		public long getId() {
+			return id;
+		}
+
+		// Ride of user with given role
+		Ride getRide(RideRole role) {
+			return rides.get(role);
+		}
+
+		// Are these rides matchable? Do they fill both roles (user and passenger)? Are
+		// they both unmatched? Are they currently in (roughly) the same place? Are they
+		// both going to (roughly) the same destination? Locations are considered
+		// different if their distance exceeds radius Matcher.getRadius()
+		boolean matchable() {
+			return (rideId != -1);
+		}
+
+		public void accepetRide(long rideId) {
+			if (this.rideId == -1) {
+				this.rideId = rideId;
+			}
+		}
+
+		private Matcher getOuterType() {
+			return Matcher.this;
+		}
+		
+		public Car getCar() {
+			Car car = null;
+			for(Ride ride: this.rides.values()) {
+				Car p = ride.getUser().getCar(ride.getPlate());
+				if(p!=null) {
+					car = p;
+				}
+			}
+			
+			return car;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "Matcher [matcheMap=" + matcheMap + ", rideMap=" + rideMap + ", rideMatchInfoMap=" + rideMatchInfoMap
+				+ "]";
+	}
+	
+	
+
+}

@@ -1,0 +1,94 @@
+package rsa.service;
+
+import java.util.Set;
+
+import rsa.quad.PointQuadtree;
+import rsa.shared.Location;
+import rsa.shared.PreferredMatch;
+import rsa.shared.RideMatchInfo;
+import rsa.shared.RideRole;
+import rsa.shared.UserStars;
+
+public class Manager extends java.lang.Object {
+	Users allUsers;
+	Matcher matcher;
+	PointQuadtree<Location> pointQuadtree;
+
+	private final long TOP_LEFT_X = 0;
+	private final long TOP_LEFT_Y = 1000;
+	private final long BOTTOM_RIGHT_X = 1000;
+	private final long BOTTOM_RIGHT_Y = 0;
+
+	private static Manager manager = null;
+
+	private Manager() {
+		pointQuadtree = new PointQuadtree<Location>(TOP_LEFT_X, TOP_LEFT_Y, BOTTOM_RIGHT_X, BOTTOM_RIGHT_Y);
+		matcher = new Matcher();
+	}
+
+//	Accept a match
+	void acceptMatch(long rideId, long matchId) {
+		matcher.acceptMatch(rideId, matchId);
+	}
+
+//	Add a ride for user with given nick, from and to the given locations.
+	public long addRide(String nick, String password, Location from, Location to, String plate, float cost) {
+		return matcher.addRide(allUsers.getUser(nick), from, to, plate, cost);
+
+	}
+
+//	Authenticates user given nick and password
+	public boolean authenticate(String nick, String password) {
+		return this.allUsers.getUserByUserNickAndPassword(nick, password) != null;
+	}
+
+//	Conclude a ride and provide feedback on the other partner
+	public void concludeRide(long rideId, UserStars classification) {
+
+	}
+
+//	The average number of stars of given user in given role
+	public double getAverage(String nick, RideRole role) {
+		User user = this.allUsers.getUser(nick);
+		return (user != null) ? user.getAverage(role) : 0;
+	}
+
+//	Returns the single instance of this class as proposed in the singleton design pattern.
+	public static Manager getInstance() {
+		if (manager == null)
+			manager = new Manager();
+
+		return manager;
+	}
+
+//	Current preferred match for given authenticated user
+	public PreferredMatch getPreferredMatch(String nick, String password) {
+		return this.allUsers.getUserByUserNickAndPassword(nick, password).getPreferredMatch();
+	}
+
+//	Register a player with given nick and password.
+	public boolean register(String nick, String name, String password) {
+		return this.allUsers.register(nick, name, password);
+	}
+
+//	Resets singleton for unit testing purposes.
+	void reset() {
+		manager = new Manager();
+	}
+
+//	Set preferred match for given authenticated user
+	void setPreferredMatch(String nick, String password, PreferredMatch preferred) {
+		this.allUsers.getUserByUserNickAndPassword(nick, password).setPreferredMatch(preferred);
+	}
+
+//	Change password if old password matches the current one
+	boolean updatePassword(String nick, String oldPassword, String newPassword) {
+		return this.allUsers.updatePassword(nick, oldPassword, newPassword);
+	}
+
+//	Update current location of user and receive a set of proposed ride matches
+	public Set<RideMatchInfo> updateRide(long rideId, Location current) {
+		return matcher.updateRide(rideId, current);
+	}
+
+}

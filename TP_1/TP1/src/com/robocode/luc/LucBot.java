@@ -94,7 +94,6 @@ public class LucBot extends AdvancedRobot{
 	@Override
 	public void onHitByBullet(HitByBulletEvent e) {
 		setBack(500);
-		
 //		setTurnLeft(90);
 //		setTurnRight((getHeading()<180) ?  -getHeading() : 360 - getHeading());
 //		double radarTurn = getHeadingRadians() + e.getBearingRadians() - getRadarHeadingRadians();

@@ -1,0 +1,139 @@
+package rsa.service;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class Users extends java.lang.Object implements java.io.Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7904622554224260818L;
+
+	private User[] users;
+	private static Users usersOBJ = null;
+	private static final String filePath = "./users";
+
+	private static File playersFile = new File(filePath);
+
+	// Authenticate user given id and password
+	boolean authenticate(String nick, String password) {
+		for (User user : usersOBJ.users) {
+			if ((user.getNick().compareTo(nick) == 1) && user.authenticate(password)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private Users() {
+		usersOBJ.loadUserData();
+	}
+
+	// Returns the single instance of this class as proposed in the singleton design
+	// pattern.
+	static Users getInstance() {
+
+		if (usersOBJ == null)
+			usersOBJ = new Users();
+		return usersOBJ;
+	}
+
+	// Name of file containing managers's data
+	static File getPlayersFile() {
+		return Users.playersFile;
+	}
+
+	// Change pathname of file containing mnanager's data
+	static void setPlayersFile(File managerFile) {
+		Users.playersFile = managerFile;
+	}
+
+	// Get the user with given nick
+	public User getUser(String nick) {
+		for (int i = 0; i < usersOBJ.users.length; i++) {
+			if (usersOBJ.users[i].getNick().equals(nick)) {
+				return usersOBJ.users[i];
+			}
+		}
+		return null;
+	}
+
+	// Register a player with given nick and password.
+	boolean register(String nick, String name, String password) {
+		try {
+			User user = new User(nick, name, password);
+			ArrayList<User> list = new ArrayList<User>((Arrays.asList(usersOBJ.users)));
+			list.add(user);
+			usersOBJ.users = (User[]) list.toArray();
+			return true;
+		} catch (Exception e) {
+			System.out.println(e);
+			return false;
+		}
+	}
+
+	// Resets singleton for unit testing purposes.
+	void reset() {
+		usersOBJ = new Users();
+	}
+
+	// Change password if old password matches current one.
+	boolean updatePassword(String nick, String oldPassword, String newPassword) {
+		User user;
+		if ((user = usersOBJ.getUserByUserNickAndPassword(nick, oldPassword)) != null) {
+			user.setPassword(newPassword);
+			return true;
+		}
+		return false;
+	}
+
+	////////// IMPLEMENTAR NO FUTURO
+	private void updateUserData() {
+
+	}
+
+	private void loadUserData() {
+		List<String> list = new ArrayList<String>();
+		BufferedReader reader = null;
+
+		try {
+			reader = new BufferedReader(new FileReader(playersFile));
+			String text = null;
+
+			while ((text = reader.readLine()) != null) {
+				list.add(text);
+			}
+
+			usersOBJ.users = (User[]) list.toArray();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+			}
+		}
+
+	}
+
+	public User getUserByUserNickAndPassword(String nick, String password) {
+		for (int i = 0; i < usersOBJ.users.length; i++) {
+			if (usersOBJ.users[i].getNick().equals(nick) && usersOBJ.users[i].getPassword().equals(password)) {
+				return usersOBJ.users[i];
+			}
+		}
+		return null;
+	}
+
+}

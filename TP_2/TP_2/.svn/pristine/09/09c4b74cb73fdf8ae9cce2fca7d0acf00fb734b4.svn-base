@@ -1,0 +1,152 @@
+package rsa.quad;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class NodeTrie<T extends HasPoint> extends Trie<T> {
+	Map<Trie.Quadrant, Trie<T>> tries;
+
+	protected NodeTrie(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY) {
+		super(topLeftX, topLeftY, bottomRightX, bottomRightY);
+		tries = new HashMap<Trie.Quadrant, Trie<T>>();
+		
+		double mx = Math.abs(topLeftX - bottomRightX)/2; 
+		double my = Math.abs(topLeftY - bottomRightY)/2; 
+		
+		tries.put(Trie.Quadrant.NW, new LeafTrie<>(topLeftX, topLeftY, bottomRightX+mx, bottomRightY-my));
+		tries.put(Trie.Quadrant.NE, new LeafTrie<>(topLeftX+mx, topLeftY, bottomRightX, bottomRightY-my));
+		tries.put(Trie.Quadrant.SW, new LeafTrie<>(topLeftX, topLeftY-my, bottomRightX+mx, bottomRightY));
+		tries.put(Trie.Quadrant.SE, new LeafTrie<>(topLeftX+mx, topLeftY-my, bottomRightX, bottomRightY));
+		
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public void collectAll(Set<T> points) {
+		for (Trie<T> aux : tries.values()) {
+			aux.collectAll(points);
+		}
+
+	}
+
+	@Override
+	public void collectNear(double x, double y, double radius, Set<T> points) {
+
+		if (overlap(x, y, radius)) {
+			for (Trie<T> aux : tries.values()) {
+				aux.collectNear(x, y, radius, points);
+			}
+		}
+
+	}
+
+	@Override
+	public void delete(T point) {
+		// TODO Auto-generated method stub
+
+		double halfSizeX = Math.abs(this.getBottomRightX() - this.getTopLeftX()) / 2;
+		double halfSizeY = Math.abs(this.getBottomRightY() - this.getTopLeftY()) / 2;
+
+		double lx = this.getTopLeftX(); // left x
+		double rx = this.getBottomRightX(); // right x
+
+		double ty = this.getTopLeftY(); // top y
+		double by = this.getBottomRightY(); // bottom y
+
+		if (point.getX() >= lx && point.getX() <= rx && point.getY() >= by && point.getY() <= ty) {
+			if ((point.getX() <= (lx + halfSizeX)) && (point.getY() <= (ty - halfSizeY))) {
+				tries.get(Trie.Quadrant.NW).delete(point);
+			} else if ((point.getX() <= (rx - halfSizeX)) && (point.getY() <= (ty - halfSizeY))) {
+				tries.get(Trie.Quadrant.NE).delete(point);
+			} else if ((point.getX() >= (lx + halfSizeX)) && (point.getY() <= (by + halfSizeY))) {
+				tries.get(Trie.Quadrant.SW).delete(point);
+			} else {
+				tries.get(Trie.Quadrant.SE).delete(point);
+			}
+
+		}
+	}
+
+	@Override
+	public T find(T point) {
+		double halfSizeX = Math.abs(this.getBottomRightX() - this.getTopLeftX()) / 2;
+		double halfSizeY = Math.abs(this.getBottomRightY() - this.getTopLeftY()) / 2;
+
+		double lx = this.getTopLeftX(); // left x
+		double rx = this.getBottomRightX(); // right x
+
+		double ty = this.getTopLeftY(); // top y
+		double by = this.getBottomRightY(); // bottom y
+
+		if (point.getX() >= lx && point.getX() <= rx && point.getY() >= by && point.getY() <= ty) {
+			if ((point.getX() <= (lx + halfSizeX)) && (point.getY() <= (ty - halfSizeY))) {
+				return tries.get(Trie.Quadrant.NW).find(point);
+			} else if ((point.getX() <= (rx - halfSizeX)) && (point.getY() <= (ty - halfSizeY))) {
+				return tries.get(Trie.Quadrant.NE).find(point);
+			} else if ((point.getX() >= (lx + halfSizeX)) && (point.getY() <= (by + halfSizeY))) {
+				return tries.get(Trie.Quadrant.SW).find(point);
+			} else {
+				return tries.get(Trie.Quadrant.SE).find(point);
+			}
+
+		}
+		return null;
+	}
+
+	@Override
+	public Trie<T> insert(T point) {
+		double halfSizeX = Math.abs(this.getBottomRightX() - this.getTopLeftX()) / 2;
+		double halfSizeY = Math.abs(this.getBottomRightY() - this.getTopLeftY()) / 2;
+
+		double lx = this.getTopLeftX(); // left x
+		double rx = this.getBottomRightX(); // right x
+
+		double ty = this.getTopLeftY(); // top y
+		double by = this.getBottomRightY(); // bottom y
+
+		if (point.getX() >= lx && point.getX() <= rx && point.getY() >= by && point.getY() <= ty) {
+			if ((point.getX() <= (lx + halfSizeX)) && (point.getY() <= (ty - halfSizeY))) {
+				tries.replace(Trie.Quadrant.NW, tries.get(Trie.Quadrant.NW).insert(point));
+			} else if ((point.getX() <= (rx - halfSizeX)) && (point.getY() <= (ty - halfSizeY))) {
+
+				tries.replace(Trie.Quadrant.NE, tries.get(Trie.Quadrant.NE).insert(point));
+			} else if ((point.getX() >= (lx + halfSizeX)) && (point.getY() <= (by + halfSizeY))) {
+
+				tries.replace(Trie.Quadrant.SW, tries.get(Trie.Quadrant.SW).insert(point));
+			} else {
+
+				tries.replace(Trie.Quadrant.SE, tries.get(Trie.Quadrant.SE).insert(point));
+			}
+
+		}
+		return this;
+	}
+
+	@Override
+	public Trie<T> insertReplace(T point) {
+		double halfSizeX = Math.abs(this.getBottomRightX() - this.getTopLeftX()) / 2;
+		double halfSizeY = Math.abs(this.getBottomRightY() - this.getTopLeftY()) / 2;
+
+		double lx = this.getTopLeftX(); // left x
+		double rx = this.getBottomRightX(); // right x
+
+		double ty = this.getTopLeftY(); // top y
+		double by = this.getBottomRightY(); // bottom y
+
+		if (point.getX() >= lx && point.getX() <= rx && point.getY() >= by && point.getY() <= ty) {
+			if ((point.getX() <= (lx + halfSizeX)) && (point.getY() <= (ty - halfSizeY))) {
+				return tries.get(Trie.Quadrant.NW).insertReplace(point);
+			} else if ((point.getX() <= (rx - halfSizeX)) && (point.getY() <= (ty - halfSizeY))) {
+				return tries.get(Trie.Quadrant.NE).insertReplace(point);
+			} else if ((point.getX() >= (lx + halfSizeX)) && (point.getY() <= (by + halfSizeY))) {
+				return tries.get(Trie.Quadrant.SW).insertReplace(point);
+			} else {
+				return tries.get(Trie.Quadrant.SE).insertReplace(point);
+			}
+
+		}
+		return null;
+	}
+
+}

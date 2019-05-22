@@ -1,0 +1,28 @@
+package rsa.shared;
+
+import java.io.Serializable;
+
+public enum RideRole implements Serializable{
+//	This user is driving the car
+	DRIVER(0),
+//	This user is the passenger
+	PASSENGER(1);
+	
+	private final int value;
+    private RideRole(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+	
+
+//	The other role: if driver then passenger, otherwise driver
+	public RideRole other() {
+		return (this.value == 0)? PASSENGER : DRIVER;
+	}
+	
+	
+	
+}

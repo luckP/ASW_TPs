@@ -1,0 +1,27 @@
+package rsa.shared;
+
+public class RideSharingAppException extends Exception {
+
+	private static final long serialVersionUID = -497424250903699508L;
+
+	RideSharingAppException() {
+		super();
+	}
+
+	RideSharingAppException(String message) {
+		super(message);
+	}
+
+	RideSharingAppException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	RideSharingAppException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
+
+	RideSharingAppException(Throwable cause) {
+		super(cause);
+	}
+
+}

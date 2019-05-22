@@ -1,0 +1,137 @@
+package rsa.quad;
+
+import java.util.Set;
+
+public abstract class Trie<T extends HasPoint> {
+
+	protected double bottomRightX;
+	protected double bottomRightY;
+	private static int capacity = 10;
+	protected double topLeftX;
+	protected double topLeftY;
+
+	protected Trie(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY) {
+		this.topLeftX = topLeftX;
+		this.topLeftY = topLeftY;
+		this.bottomRightX = bottomRightX;
+		this.bottomRightY = bottomRightY;
+	}
+
+	public enum Quadrant {
+		NE, NW, SE, SW;
+	}
+
+	public double getBottomRightX() {
+		return bottomRightX;
+	}
+
+	public void setBottomRightX(double bottomRightX) {
+		this.bottomRightX = bottomRightX;
+	}
+
+	public double getBottomRightY() {
+		return bottomRightY;
+	}
+
+	public void setBottomRightY(double bottomRightY) {
+		this.bottomRightY = bottomRightY;
+	}
+
+	public double getTopLeftX() {
+		return topLeftX;
+	}
+
+	public void setTopLeftX(double topLeftX) {
+		this.topLeftX = topLeftX;
+	}
+
+	public double getTopLeftY() {
+		return topLeftY;
+	}
+
+	public void setTopLeftY(double topLeftY) {
+		this.topLeftY = topLeftY;
+	}
+
+//	Collect all points in this node and its descendants in given set
+	abstract void collectAll(java.util.Set<T> points);
+
+//	Collect points at a distance smaller or equal to radius from (x,y) and place them in given list
+	abstract void collectNear(double x, double y, double radius, Set<T> points);
+
+//	Delete given point
+	abstract void delete(T point);
+
+//	Find a recorded point with the same coordinates of given point
+	abstract T find(T point);
+
+//	Euclidean distance between two pair of coordinates of two points
+	static double getDistance(double x1, double y1, double x2, double y2) {
+		return (double) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+	}
+
+//	Insert given point
+	abstract Trie<T> insert(T point);
+
+//	Insert given point, replacing existing points in same location
+	abstract Trie<T> insertReplace(T point);
+
+//	Check if overlaps with given circle
+	boolean overlap(double x, double y, double radius) {
+		
+		double rcx = (getTopLeftX() + getBottomRightX()) / 2; // rectangle center x
+		double rcy = (getTopLeftY() + getBottomRightY()) / 2; // rectangel center y
+		
+		double srx = Math.abs(getTopLeftX() - rcx);
+		double sry = Math.abs(getTopLeftY() - rcy);
+		
+		double distCenters = Math.sqrt((rcx-x)*(rcx-x) + (rcy-y)*(rcy-y));
+		
+		double dist = Double.MAX_VALUE;
+
+		double points[][] = { { getBottomRightX(), getBottomRightY(), getTopLeftX(), getBottomRightY() },
+				{ getTopLeftX(), getBottomRightY(), getTopLeftX(), getTopLeftY() },
+				{ getTopLeftX(), getTopLeftY(), getBottomRightX(), getTopLeftY() },
+				{ getBottomRightX(), getTopLeftY(), getBottomRightX(), getBottomRightY() },
+		};
+
+			for (int i = 0; i < 4; i++) {
+				double x1 = points[i][0];
+				double y1 = points[i][1];
+				double x2 = points[i][2];
+				double y2 = points[i][3];
+
+				double new_dist = Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1)
+						/ Math.sqrt(Math.pow(y2 - y1, 2) + Math.pow(x2 - x1, 2));
+
+				
+				if (new_dist < dist) {
+					dist = new_dist;
+				}
+			}
+//			System.out.println(dist);
+//			
+//			System.out.println(srx);
+//
+		return ((dist <= radius) || distCenters<=srx || distCenters <= sry);
+	}
+
+//	Get capacity of a bucket
+	static int getCapacity() {
+		return capacity;
+	}
+
+//	Set capacity of a bucket
+	static void setCapacity(int c) {
+		capacity = c;
+	}
+
+	@Override
+	public String toString() {
+		return "Trie [bottomRightX=" + bottomRightX + ", bottomRightY=" + bottomRightY + ", topLeftX=" + topLeftX
+				+ ", topLeftY=" + topLeftY + "]";
+	}
+
+	
+
+}

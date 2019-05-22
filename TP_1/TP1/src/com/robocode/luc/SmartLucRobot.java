@@ -4,9 +4,11 @@ import java.util.LinkedList;
 
 import robocode.AdvancedRobot;
 import robocode.BattleEndedEvent;
+import robocode.DeathEvent;
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
 import robocode.ScannedRobotEvent;
+import robocode.WinEvent;
 import robocode.util.Utils;
 
 public class SmartLucRobot extends AdvancedRobot{
@@ -17,7 +19,6 @@ public class SmartLucRobot extends AdvancedRobot{
 		private int numInputs;
 		private double threshold = 0.5;
 		private final double MUTATION_RATE = 10; //10% de chance de haver mutacao
-		static int count = 0;
 		
 		public Neuron(int numInputs) {
 			this.numInputs = numInputs;
@@ -30,6 +31,8 @@ public class SmartLucRobot extends AdvancedRobot{
 		}
 		
 		public Neuron(double[] w) {
+			
+			numInputs = w.length;
 			for(int i=0; i<numInputs; i++) {
 				weights[i] = w[i];
 			}
@@ -39,6 +42,9 @@ public class SmartLucRobot extends AdvancedRobot{
 			
 			double w1[] = n1.getWeights();
 			double w2[] = n2.getWeights(); 
+			
+			numInputs = n1.getNumInputs();
+			weights = new double[n2.getWeights().length];
 			for(int i=0; i<numInputs; i++) {
 				double val = Math.random();
 				if(val< MUTATION_RATE/100)
@@ -48,6 +54,10 @@ public class SmartLucRobot extends AdvancedRobot{
 				else 
 					weights[i] = w2[i];
 			}
+		}
+		
+		public int getNumInputs() {
+			return numInputs;
 		}
 		
 		public double[] getWeights() {
@@ -76,23 +86,36 @@ public class SmartLucRobot extends AdvancedRobot{
 	}
 	
 	private static class Brain{
-		private LinkedList<Neuron> neuronsLayers[];
+		private LinkedList<LinkedList<Neuron>> neuronsLayers = new LinkedList<LinkedList<Neuron>>();
+		private double time;
 		public Brain(int... neuronNumberLayer) {
-			this.neuronsLayers = new LinkedList[neuronNumberLayer.length-1];
+			time = 0;
 			for(int i=1; i<neuronNumberLayer.length; i++) {//				
-				this.neuronsLayers[i-1] = new LinkedList<Neuron>();
+				this.neuronsLayers.add(new LinkedList<Neuron>());
 				for(int j=0; j<neuronNumberLayer[i-1]; j++) {
-					this.neuronsLayers[i-1].addFirst(new Neuron(neuronNumberLayer[i-1]));
+					this.neuronsLayers.get(i-1).addFirst(new Neuron(neuronNumberLayer[i-1]));
 				}
 			}
 		}
 		
 		public Brain(Brain b1, Brain b2) {
-			int len = b1.getNeuronsLayers().length;
-			neuronsLayers = new LinkedList[len];
+			int len = b1.getNeuronsLayers().size();
 			for(int i=0; i<len; i++) {
-				neuronsLayers[i].addFirst(new Neuron(b1.getNeuronsLayers()[i].pop(), b2.getNeuronsLayers()[i].pop()));
+				neuronsLayers.add(new LinkedList<Neuron>());
+				for(int j=0; j<b1.getNeuronsLayers().size(); j++) {
+					Neuron n1 = b1.getNeuronsLayers().get(i).pop();
+					Neuron n2 = b2.getNeuronsLayers().get(i).pop();
+					neuronsLayers.get(i).addFirst(new Neuron(n1, n2));
+				}
 			}
+			
+		}
+		public double getTime() {
+			return time;
+		}
+		
+		public void setTime(double t) {
+			time = t;
 		}
 		
 		@Override
@@ -106,7 +129,7 @@ public class SmartLucRobot extends AdvancedRobot{
 			return str.substring(0, str.length()-2)+"]";
 		}
 		
-		public LinkedList<Neuron>[] getNeuronsLayers(){
+		public LinkedList<LinkedList<Neuron>> getNeuronsLayers(){
 			return neuronsLayers;
 		}
 		
@@ -134,22 +157,28 @@ public class SmartLucRobot extends AdvancedRobot{
 		
 	}
 	
-//	public static void main(String args[]) {
-//		Brain b = new Brain(3,3,1);
-//		System.out.println(b.toString());
-//		double[] d = new double[3];
-////		d[0] = 1;
-////		d[0] = 1;
-////		d[0] = 1;
-//		System.out.println(b.calc(1,2,3));
-//	}
+	public static void main(String args[]) {
+		Brain b1 = new Brain(3,5,3);
+		Brain b2 = new Brain(3,5,3);
+		Brain b3 = new Brain(b1, b2);
+		
+		System.out.println(b3.toString());
+	}
 	
-	Brain brainOnScannedRobotAhead = new Brain(3,3,3);
-	Brain brainOnScannedRobotTurnGunRight = new Brain(3,3,3);
-	int dir = 1;
+	private Brain brainOnScannedRobotAhead = new Brain(3,3,3);
+	private Brain brainOnScannedRobotTurnGunRight = new Brain(3,3,3);;
+	private int dir = 1;
+	
+	private static int count = 1;
+	
+	
+	private static Brain[] brainListWin = new Brain[10];
+	private static Brain[] brainListDeath = new Brain[10];
+
 
 	@Override
 	public void run() {
+		
 		
 		setAdjustRadarForGunTurn(true);
 		setAdjustRadarForRobotTurn(true);
@@ -184,6 +213,34 @@ public class SmartLucRobot extends AdvancedRobot{
 	}
 	
 	public void onBattleEnded(BattleEndedEvent e) {
+		
+		
 	}
+	
+	@Override
+	public void onDeath(DeathEvent e){
+		double time = e.getTime();
+		for(int i=0; i<brainListDeath.length; i++)
+				
+		
+		count++;
+	}
+	
+	@Override
+	public void onWin(WinEvent e) {
+		
+		double time = e.getTime();
+		for(int i=0; i<brainListWin.length; i++)
+			
+		
+		count++;
+	}
+	
+	public void newGeneration() {
+		int cWin = 0;
+		int cDeath = 0;
+//		for()
+	}
+
 
 }
